@@ -43,4 +43,4 @@ npm run build
 npm audit
 ```
 
-Set production credentials through your hosting provider's secret/environment-variable settings. Use HTTPS, restrict database and Redis access, and configure the backend's allowed web origins for the production frontend.
+Set production credentials through your hosting provider's secret/environment-variable settings. Email uses Brevo's HTTPS API; configure `BREVO_API_KEY` and a verified `BREVO_SENDER_EMAIL` from `BACKEND/.env.example`. Set `FRONTEND_ORIGINS` to the exact HTTPS origin(s) of the deployed frontend, comma-separated without trailing slashes. The backend rejects production startup if this is missing or malformed. Never put API keys in frontend variables or commit them. Use HTTPS and restrict database and Redis access.

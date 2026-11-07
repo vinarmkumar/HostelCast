@@ -2,6 +2,7 @@
 require("dotenv").config({ path: require("path").join(__dirname, "..", ".env") });
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const { createServer } = require("node:http");
 const connectDatabase = require("./database");
 const authRoutes = require("./Routes/authRoutes");
@@ -10,9 +11,12 @@ const profileRoutes = require("../MyProfile/profileRoutes");
 const liveRoutes = require("../Live/liveRoutes");
 const { createLiveSockets, monitorLiveRooms } = require("../Live/liveSockets");
 const { getRedisClient, closeRedis } = require("./redis");
+const { corsOrigin, validateFrontendOrigins } = require("./corsConfig");
 
-const app = express(); // Express ka application server object yahan banega.
-app.use(cors({ origin: true, credentials: true })); // Frontend dev server ko backend API call karne ki permission milti hai.
+const app = express();
+app.disable("x-powered-by");
+app.use(helmet());
+app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(express.json({ limit: "100kb" })); // Auth JSON plus live preview snapshots yahan parse hote hain.
 app.get("/api/health", async (_req, res) => {
   const redis = await getRedisClient();
@@ -28,6 +32,7 @@ async function startServer() {
     if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32 || /replace-with|change-this/i.test(process.env.JWT_SECRET)) {
       throw new Error("JWT_SECRET must be configured in .env with a random value of at least 32 characters.");
     }
+    validateFrontendOrigins();
     await connectDatabase(); // Database connected hone ke baad hi Express server start hota hai.
     const server = createServer(app);
     const io = await createLiveSockets(server);

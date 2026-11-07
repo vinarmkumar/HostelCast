@@ -1,4 +1,4 @@
-const { setRateLimit } = require("../redis");
+const { setRateLimit, deleteCachedValue } = require("../redis");
 
 async function checkOtpCooldown(email) {
   const result = await setRateLimit(`otp:signup:${email}`, 60);
@@ -6,4 +6,8 @@ async function checkOtpCooldown(email) {
   return { allowed: false, retryAfterSeconds: Math.max(result.ttl, 1) };
 }
 
-module.exports = { checkOtpCooldown };
+async function clearOtpCooldown(email) {
+  await deleteCachedValue(`otp:signup:${email}`);
+}
+
+module.exports = { checkOtpCooldown, clearOtpCooldown };

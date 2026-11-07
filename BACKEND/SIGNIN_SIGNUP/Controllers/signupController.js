@@ -3,7 +3,7 @@ const User = require("../Models/User");
 const TempUser = require("../Models/TempUser");
 const { sendOtpEmail } = require("../MiddleWare/Email");
 const { sendError, makeOtp, hashOtp, isStrongPassword, getCollegeFromEmail, isUniversityEmail } = require("./authHelpers");
-const { checkOtpCooldown } = require("./otpRateLimit");
+const { checkOtpCooldown, clearOtpCooldown } = require("./otpRateLimit");
 
 // Signup request frontend ke Name, University Email, College, Gender aur Password ko receive karta hai.
 exports.signup = async (req, res) => {
@@ -37,6 +37,7 @@ exports.signup = async (req, res) => {
       return res.status(200).json({ success: true, message: "OTP sent to your email.", email: cleanEmail });
     } catch (error) {
       await TempUser.deleteOne({ email: cleanEmail });
+      await clearOtpCooldown(cleanEmail);
       console.error("OTP email could not be sent:", error.message);
       return sendError(res, 502, "The verification email could not be sent. Please try again.");
     }

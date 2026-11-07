@@ -1,44 +1,49 @@
-const nodemailer = require("nodemailer");
 const otpTemplate = require("../Libs/EmailTemplate");
 
-let transporter;
+const BREVO_EMAILS_URL = "https://api.brevo.com/v3/smtp/email";
 
-function getTransporter() {
-  // Gmail ka account aur 16-digit App Password environment variables se liya jaata hai.
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) throw new Error("Email credentials configured nahi hain.");
-  if (!transporter) {
-    // Gmail SMTP OTP emails ko university inbox tak bhejta hai; normal account password nahi chalta.
-    transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS.replace(/\s+/g, ""),
-      },
-    });
+async function sendEmail(to, subject, htmlContent) {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL;
+  if (!apiKey || !senderEmail) {
+    throw new Error("BREVO_API_KEY and BREVO_SENDER_EMAIL must be configured.");
   }
-  return transporter;
+
+  const response = await fetch(BREVO_EMAILS_URL, {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "api-key": apiKey,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: "HostelCast", email: senderEmail },
+      to: [{ email: to }],
+      subject,
+      htmlContent,
+    }),
+    signal: AbortSignal.timeout(10000),
+  });
+
+  if (!response.ok) {
+    const responseText = await response.text();
+    let providerMessage = "";
+    try {
+      providerMessage = JSON.parse(responseText).message || "";
+    } catch {
+      providerMessage = "";
+    }
+    throw new Error(`Brevo email request failed (${response.status})${providerMessage ? `: ${providerMessage}` : "."}`);
+  }
 }
 
 async function sendOtpEmail(email, otp, name) {
-  // Authentication aur sender reputation ka verification email ke deliver hone par seedha asar hota hai.
-  await getTransporter().sendMail({
-    from: `HostelCast <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "HostelCast verification code",
-    html: otpTemplate(name, otp),
-  });
+  await sendEmail(email, "HostelCast verification code", otpTemplate(name, otp));
 }
 
 async function sendPasswordResetEmail(email, otp, name) {
-  // Same Gmail transporter password reset OTP ke liye styled English email bhejta hai.
-  await getTransporter().sendMail({
-    from: `HostelCast <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Reset your HostelCast password",
-    html: otpTemplate(name, otp).replace("continue with HostelCast", "reset your HostelCast password"),
-  });
+  const html = otpTemplate(name, otp).replace("continue with HostelCast", "reset your HostelCast password");
+  await sendEmail(email, "Reset your HostelCast password", html);
 }
 
 module.exports = { sendOtpEmail, sendPasswordResetEmail };

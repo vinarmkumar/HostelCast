@@ -60,13 +60,21 @@ async function deleteCachedValue(key) {
   }
 }
 
+async function incrementRateLimit(client, key, windowSeconds) {
+  const count = await client.incr(key);
+  const ttl = await client.ttl(key);
+  if (count === 1 || ttl < 0) {
+    await client.set(key, "1", { EX: windowSeconds });
+    return { count: 1, ttl: windowSeconds };
+  }
+  return { count, ttl };
+}
+
 async function setRateLimit(key, windowSeconds) {
   const client = await getRedisClient();
   if (!client) return null;
   try {
-    const count = await client.incr(key);
-    if (count === 1) await client.expire(key, windowSeconds);
-    return { count, ttl: await client.ttl(key) };
+    return await incrementRateLimit(client, key, windowSeconds);
   } catch (error) {
     console.error("Redis rate limit failed:", error.message);
     return null;
@@ -82,6 +90,7 @@ module.exports = {
   getCachedValue,
   setCachedValue,
   deleteCachedValue,
+  incrementRateLimit,
   setRateLimit,
   closeRedis,
 };

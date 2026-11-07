@@ -1,10 +1,11 @@
 const { Server } = require("socket.io");
 const { createAdapter } = require("@socket.io/redis-adapter");
 const { getRedisClient } = require("../SIGNIN_SIGNUP/redis");
+const { corsOrigin } = require("../SIGNIN_SIGNUP/corsConfig");
 const { getLiveRooms } = require("./liveRegistry");
 
 async function createLiveSockets(httpServer) {
-  const io = new Server(httpServer, { cors: { origin: true, credentials: true } });
+  const io = new Server(httpServer, { cors: { origin: corsOrigin, credentials: true } });
   const redis = await getRedisClient();
   if (!redis) {
     console.error("Live updates are running without a Redis Socket.IO adapter.");
