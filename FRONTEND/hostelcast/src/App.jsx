@@ -2,6 +2,7 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Home from "./Home.jsx";
 import LiveStartModal from "./Live/LiveStartModal.jsx";
+import { apiUrl } from "./apiUrl.js";
 
 const SignIn = lazy(() => import("../SIGNIN_SIGNUP/src/Components/SignIn.jsx"));
 const SignUp = lazy(() => import("../SIGNIN_SIGNUP/src/Components/SignUp.jsx"));
@@ -225,7 +226,7 @@ export default function App() {
     setRestoreError("");
     try {
       const token = localStorage.getItem("hostelcast_token");
-      const response = await fetch("/api/live/host/active", {
+      const response = await fetch(apiUrl("/api/live/host/active"), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

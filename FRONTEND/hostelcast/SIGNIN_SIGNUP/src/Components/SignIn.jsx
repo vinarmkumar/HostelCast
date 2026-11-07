@@ -1,5 +1,6 @@
 // React ka state feature is component mein form values aur loading/message store karta hai.
 import { useEffect, useState } from "react";
+import { apiUrl } from "../../../src/apiUrl.js";
 
 // App.jsx is component ko onClose aur onCreate functions pass karta hai.
 export default function SignIn({ onClose, onCreate, onAuthenticated }) {
@@ -27,7 +28,7 @@ export default function SignIn({ onClose, onCreate, onAuthenticated }) {
     setMessage("");
     try {
       // Vite proxy /api ko backend auth server par bhejta hai; form object signin controller ko data deta hai.
-      const response = await fetch("/api/auth/signin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const response = await fetch(apiUrl("/api/auth/signin"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const data = await response.json(); // Backend ka JSON message, token aur user data parse hota hai.
       if (!response.ok) {
         if (data.retryAfterSeconds) setLockSeconds(data.retryAfterSeconds);
@@ -49,7 +50,7 @@ export default function SignIn({ onClose, onCreate, onAuthenticated }) {
     setLoading(true);
     setMessage("");
     try {
-      const response = await fetch("/api/auth/forgot-password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email }) });
+      const response = await fetch(apiUrl("/api/auth/forgot-password"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       setMode("reset");
@@ -70,7 +71,7 @@ export default function SignIn({ onClose, onCreate, onAuthenticated }) {
     setLoading(true);
     setMessage("");
     try {
-      const response = await fetch("/api/auth/reset-password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email, otp, newPassword }) });
+      const response = await fetch(apiUrl("/api/auth/reset-password"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email, otp, newPassword }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       setMode("signin");

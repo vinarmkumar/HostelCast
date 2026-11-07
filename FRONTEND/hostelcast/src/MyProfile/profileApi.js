@@ -1,6 +1,8 @@
+import { apiUrl } from "../apiUrl.js";
+
 export async function profileRequest(url, options = {}) {
   const token = localStorage.getItem("hostelcast_token");
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl(url), {
     ...options,
     headers: {
       ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }),

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { apiUrl } from "../apiUrl.js";
 
 export default function LiveUserSearch({ onJoinLive, onOpenProfile, currentUser }) {
   const [query, setQuery] = useState("");
@@ -22,7 +23,7 @@ export default function LiveUserSearch({ onJoinLive, onOpenProfile, currentUser 
       setLoading(true);
       setError("");
       try {
-        const response = await fetch(`/api/home/search?q=${encodeURIComponent(normalizedQuery)}`, {
+        const response = await fetch(apiUrl(`/api/home/search?q=${encodeURIComponent(normalizedQuery)}`), {
           signal: controller.signal,
         });
         const result = await response.json();

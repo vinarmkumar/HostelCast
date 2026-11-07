@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { io } from "socket.io-client";
+import { apiOrigin, apiUrl } from "../apiUrl.js";
 
 const EMPTY_ROOMS = [];
 const initialSnapshot = { rooms: EMPTY_ROOMS, loading: true, error: "" };
@@ -28,7 +29,7 @@ async function refreshRooms() {
   abortController = new AbortController();
   refreshPromise = (async () => {
     try {
-      const response = await fetch("/api/live/rooms", {
+      const response = await fetch(apiUrl("/api/live/rooms"), {
         signal: abortController.signal,
         cache: "no-store",
       });
@@ -65,7 +66,7 @@ function refreshWhenVisible() {
 
 function startStore() {
   if (socket) return;
-  socket = io({ path: "/socket.io" });
+  socket = io(apiOrigin, { path: "/socket.io" });
   socket.on("connect", refreshRooms);
   socket.on("live:rooms:update", scheduleRefresh);
   document.addEventListener("visibilitychange", refreshWhenVisible);

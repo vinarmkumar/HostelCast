@@ -2,6 +2,7 @@
 import { useState } from "react";
 // Pasted/selected artwork ko Vite bundle ke liye left signup panel mein import kiya gaya hai.
 import signupArtwork from "../Images/signinsignupbg.png";
+import { apiUrl } from "../../../src/apiUrl.js";
 
 const collegeDomainMap = {
   "lpu.in": "Lovely Professional University (LPU)",
@@ -53,7 +54,7 @@ export default function SignUp({ onClose, onSignIn, onAuthenticated }) {
     setLoading(true); setMessage("");
     try {
       // Form ke name/email/college/password ko authController.js ke signup function tak bheja jaata hai.
-      const response = await fetch("/api/auth/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const response = await fetch(apiUrl("/api/auth/signup"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       setStep("otp"); setMessage(data.message);
@@ -70,7 +71,7 @@ export default function SignUp({ onClose, onSignIn, onAuthenticated }) {
     event.preventDefault(); setLoading(true); setMessage("");
     try {
       // form ka email aur OTP screen ki otp value authController.js ke verifyOtp function ko milti hai.
-      const response = await fetch("/api/auth/verify-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email, otp }) });
+      const response = await fetch(apiUrl("/api/auth/verify-otp"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email, otp }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       localStorage.setItem("hostelcast_token", data.token);

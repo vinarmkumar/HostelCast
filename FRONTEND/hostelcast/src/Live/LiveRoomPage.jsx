@@ -6,6 +6,7 @@ import useLiveRooms from "./useLiveRooms.js";
 import LiveProfileBar from "../MyProfile/LiveProfileBar.jsx";
 import LIVE_AUDIO_CAPTURE_OPTIONS from "./audioCaptureOptions.js";
 import { VIDEO_FILTERS } from "./videoEffects.js";
+import { apiUrl } from "../apiUrl.js";
 import burgerGift from "./img/burger50rs.png";
 import cakeGift from "./img/cake300rs.png";
 import cameraLogo from "./img/cameralogo.png";
@@ -27,7 +28,7 @@ const SUPERCHAT_GIFTS = [
 ];
 
 async function requestJson(url, token, options = {}) {
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl(url), {
     ...options,
     headers: {
       "Content-Type": "application/json",

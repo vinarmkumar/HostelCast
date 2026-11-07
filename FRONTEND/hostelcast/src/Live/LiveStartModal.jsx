@@ -2,6 +2,8 @@ import { useState } from "react";
 import LIVE_AUDIO_CAPTURE_OPTIONS from "./audioCaptureOptions.js";
 import { CAMERA_QUALITIES } from "./videoEffects.js";
 
+import { apiUrl } from "../apiUrl.js";
+
 export default function LiveStartModal({ onConfirm, onClose }) {
   const [loading, setLoading] = useState(false);
   const [endingExisting, setEndingExisting] = useState(false);
@@ -42,7 +44,7 @@ export default function LiveStartModal({ onConfirm, onClose }) {
     setError("");
     try {
       const token = localStorage.getItem("hostelcast_token");
-      const response = await fetch("/api/live/host/active", {
+      const response = await fetch(apiUrl("/api/live/host/active"), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

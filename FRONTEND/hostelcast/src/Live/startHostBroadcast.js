@@ -2,8 +2,10 @@ import { Room, Track } from "livekit-client";
 import LIVE_AUDIO_CAPTURE_OPTIONS from "./audioCaptureOptions.js";
 import { createVideoEffects } from "./videoEffects.js";
 
+import { apiUrl } from "../apiUrl.js";
+
 async function requestJson(url, token, options = {}) {
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl(url), {
     ...options,
     headers: {
       "Content-Type": "application/json",

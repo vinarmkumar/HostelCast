@@ -28,7 +28,7 @@ HostelCast is a live-streaming and campus discovery application with a React/Vit
    npm run dev
    ```
 
-The Vite development server proxies API and Socket.IO requests to `http://localhost:5000`.
+The Vite development server proxies API and Socket.IO requests to `http://localhost:5000`. For a deployed frontend, set `VITE_API_URL` to the backend's HTTPS origin (for example, `https://your-backend.onrender.com`) in the Cloudflare Pages build environment; use the same origin in the backend's `FRONTEND_ORIGINS`. Never put backend secrets in frontend variables.
 
 ## Checks
 
